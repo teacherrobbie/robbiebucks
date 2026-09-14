@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Robbie Bucks 🏆</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Inter:wght@400;600;700;800&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0e14; --surface:#121722; --surface2:#1a2130; --line:#232b3d;
+    --text:#eef2f8; --muted:#8892a6;
+    --gold:#ffb703; --green:#2dd4a7; --red:#ff5470;
+    --g3:#4fd6e8; --g4:#5b8def; --g5:#b98af0; --g6:#ff8a5b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;overflow-x:hidden;}
+  .disp{font-family:'Space Grotesk',sans-serif;}
+  .zh{font-family:'Noto Sans TC',sans-serif;}
+  input,button{font-family:inherit;}
+
+  .screen{display:none;min-height:100vh;flex-direction:column;align-items:center;padding:24px 18px 60px;}
+  .screen.active{display:flex;}
+
+  /* ── HEADER ── */
+  .app-header{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(11,14,20,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;}
+  .header-logo{font-size:18px;font-weight:900;cursor:pointer;}
+  .header-logo span{color:var(--gold);}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .header-bucks{font-family:'Space Grotesk',sans-serif;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:5px 12px;font-size:14px;font-weight:700;color:var(--gold);display:none;}
+  .header-avatar{font-size:20px;cursor:pointer;}
+  .btn-switch{display:none;background:none;border:1px solid var(--line);color:var(--muted);font-size:12px;font-weight:700;padding:5px 10px;border-radius:20px;cursor:pointer;}
+
+  .with-header{padding-top:76px;}
+
+  /* ── SHARED ── */
+  .wrap{width:100%;max-width:420px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;}
+  .h1{font-size:26px;font-weight:900;margin-bottom:4px;}
+  .h1 span{color:var(--gold);}
+  .sub{color:var(--muted);font-size:14px;margin-bottom:22px;}
+  .field-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+  .input{width:100%;background:var(--surface2);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;font-size:16px;font-weight:700;color:var(--text);outline:none;transition:border 0.15s;}
+  .input:focus{border-color:var(--gold);}
+  .btn{width:100%;padding:15px;border-radius:10px;border:none;background:var(--gold);color:#1a1200;font-size:15px;font-weight:800;letter-spacing:0.02em;cursor:pointer;transition:transform 0.1s,opacity 0.15s;}
+  .btn:hover{opacity:0.9;}
+  .btn:active{transform:scale(0.98);}
+  .btn:disabled{opacity:0.35;cursor:not-allowed;}
+  .btn-ghost{background:none;border:1.5px solid var(--line);color:var(--text);}
+  .btn-danger{background:var(--red);color:#2a0008;}
+  .error-text{color:var(--red);font-size:13px;margin-top:10px;min-height:16px;font-weight:600;}
+  .back-btn{background:none;border:none;color:var(--muted);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;margin-bottom:18px;padding:0;align-self:flex-start;}
+  .back-btn:hover{color:var(--text);}
+  .empty{text-align:center;color:var(--muted);padding:40px 20px;font-size:14px;}
+  .loading{text-align:center;color:var(--muted);padding:30px;font-size:13px;}
+
+  /* ── LOGIN ── */
+  #screen-login{justify-content:center;background:radial-gradient(ellipse at 50% 0%,#1a2440 0%,var(--bg) 60%);}
+  .login-hero{text-align:center;margin-bottom:28px;}
+  .login-hero .disp{font-size:40px;font-weight:900;line-height:1.05;}
+  .login-hero .disp span{color:var(--gold);}
+
+  /* ── PROFILE SETUP ── */
+  #screen-profile{justify-content:center;}
+  .avatar-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px;}
+  .avatar-opt{font-size:26px;text-align:center;padding:9px;border-radius:10px;cursor:pointer;border:2px solid transparent;background:var(--surface2);transition:all 0.15s;}
+  .avatar-opt.selected{border-color:var(--gold);background:rgba(255,183,3,0.14);transform:scale(1.06);}
+  .grade-group{margin-bottom:14px;}
+  .grade-group-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;}
+  .class-row{display:flex;gap:8px;}
+  .class-opt{flex:1;padding:12px 4px;border-radius:10px;border:2px solid var(--line);background:var(--surface2);cursor:pointer;text-align:center;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;color:var(--muted);transition:all 0.15s;}
+  .class-opt.selected{color:#fff;}
+
+  /* ── HOME ── */
+  #screen-home{justify-content:flex-start;}
+  .home-hero{text-align:center;padding:20px 0 26px;}
+  .home-hello{font-size:16px;color:var(--muted);margin-bottom:6px;}
+  .home-hello span{color:var(--text);font-weight:700;}
+  .home-balance{font-size:56px;font-weight:900;line-height:1;color:var(--gold);}
+  .home-balance-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-top:6px;}
+  .nav-btn{width:100%;display:flex;align-items:center;gap:14px;padding:18px 18px;border-radius:14px;border:1px solid var(--line);background:var(--surface);cursor:pointer;margin-bottom:12px;text-align:left;color:var(--text);transition:all 0.15s;}
+  .nav-btn:hover{border-color:var(--gold);transform:translateY(-1px);}
+  .nav-btn-icon{font-size:26px;width:34px;text-align:center;}
+  .nav-btn-title{font-weight:800;font-size:16px;}
+  .nav-btn-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .nav-btn-arrow{margin-left:auto;color:var(--muted);font-size:18px;}
+
+  /* ── LEADERBOARD TABS ── */
+  .lb-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+  .lb-tab{flex:1;min-width:80px;padding:9px 4px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-size:12px;font-weight:800;cursor:pointer;text-align:center;line-height:1.3;transition:all 0.15s;}
+  .lb-tab .en{display:block;}
+  .lb-tab .zh{display:block;font-size:10px;font-weight:600;opacity:0.8;margin-top:1px;}
+  .lb-tab.active{background:var(--gold);border-color:var(--gold);color:#1a1200;}
+
+  /* ── SCOREBOARD ROW ── */
+  .row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;}
+  .row.me{border-color:var(--gold);background:rgba(255,183,3,0.06);}
+  .row-rank{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:900;width:28px;text-align:center;color:var(--muted);flex-shrink:0;}
+  .row-rank.r1{color:#ffd700;} .row-rank.r2{color:#c8c8c8;} .row-rank.r3{color:#cd7f32;}
+  .row-avatar{font-size:22px;flex-shrink:0;}
+  .row-info{flex:1;min-width:0;}
+  .row-name{font-size:15px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row-tag{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:20px;margin-left:6px;vertical-align:middle;}
+  .row-bar-track{background:var(--surface2);border-radius:20px;height:5px;margin-top:5px;overflow:hidden;}
+  .row-bar-fill{height:100%;border-radius:20px;transition:width 0.5s;}
+  .row-amount{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:900;color:var(--gold);flex-shrink:0;font-variant-numeric:tabular-nums;}
+  .row-amount.neg{color:var(--red);}
+
+  /* ── ME VS SCHOOL ── */
+  .mvs-hero{text-align:center;padding:20px 0;}
+  .mvs-rank{font-size:64px;font-weight:900;line-height:1;color:var(--gold);}
+  .mvs-rank-label{font-size:13px;color:var(--muted);margin-top:6px;}
+  .mvs-stats{display:flex;gap:10px;margin-top:22px;}
+  .mvs-stat{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;}
+  .mvs-stat-val{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:900;}
+  .mvs-stat-label{font-size:11px;color:var(--muted);margin-top:3px;}
+  .mvs-compare{margin-top:20px;}
+  .mvs-compare-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+  .mvs-compare-label{font-size:12px;color:var(--muted);width:64px;flex-shrink:0;}
+  .mvs-compare-track{flex:1;background:var(--surface2);border-radius:20px;height:14px;overflow:hidden;}
+  .mvs-compare-fill{height:100%;border-radius:20px;}
+  .mvs-compare-val{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;width:52px;text-align:right;flex-shrink:0;}
+
+  /* ── TEACHER ── */
+  .teacher-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,183,3,0.12);border:1px solid rgba(255,183,3,0.35);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--gold);margin-bottom:18px;}
+  .grade-tabs{display:flex;gap:6px;margin-bottom:14px;}
+  .grade-tab{flex:1;padding:9px 2px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-size:13px;font-weight:800;cursor:pointer;text-align:center;}
+  .grade-tab.active{color:#0a0a0a;}
+  .scroll-fade-wrap{position:relative;}
+  .scroll-fade-wrap::after{content:'';position:absolute;top:0;right:0;bottom:16px;width:26px;background:linear-gradient(to right,transparent,var(--bg) 80%);pointer-events:none;}
+  .class-pick-row{display:flex;gap:6px;margin-bottom:16px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+  .class-pick-row::-webkit-scrollbar{display:none;}
+  .class-pick{flex:1 1 60px;min-width:56px;padding:8px 10px;border-radius:8px;border:1.5px solid var(--line);background:var(--surface);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;color:var(--muted);cursor:pointer;text-align:center;}
+  .class-pick.active{color:#0a0a0a;}
+
+  .manage-grid{display:flex;gap:0;width:100%;}
+  .manage-roster-wrap{flex:1;min-width:0;padding-right:10px;}
+  .manage-roster{}
+  #screen-teacher-manage{height:100vh;overflow:hidden;box-sizing:border-box;}
+  #screen-teacher-manage .wrap{display:flex;flex-direction:column;height:100%;max-width:100%;padding:0 6px;box-sizing:border-box;}
+  #screen-teacher-manage .manage-grid{flex:1;min-height:0;}
+  #screen-teacher-manage .manage-roster-wrap{display:flex;flex-direction:column;height:100%;min-height:0;}
+  #manage-roster{--rs:1;flex:1;min-height:0;overflow:hidden;display:flex;gap:14px;}
+  #manage-roster .manage-roster-col{flex:1;min-width:0;display:flex;flex-direction:column;}
+  #manage-roster .row{gap:calc(12px*var(--rs));padding:calc(12px*var(--rs)) calc(14px*var(--rs));border-radius:calc(12px*var(--rs));margin-bottom:calc(8px*var(--rs));flex-shrink:0;}
+  #manage-roster .row-rank{font-size:calc(18px*var(--rs));width:calc(28px*var(--rs));}
+  #manage-roster .row-avatar{font-size:calc(22px*var(--rs));}
+  #manage-roster .row-name{font-size:calc(15px*var(--rs));}
+  #manage-roster .row-bar-track{height:calc(5px*var(--rs));margin-top:calc(5px*var(--rs));}
+  #manage-roster .row-amount{font-size:calc(16px*var(--rs));}
+  .add-student-btn{width:100%;padding:9px 4px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;border:1.5px dashed rgba(45,212,167,0.5);background:rgba(45,212,167,0.08);color:var(--green);margin-bottom:10px;}
+  .add-student-btn:hover{background:rgba(45,212,167,0.18);}
+  .delete-student-btn{width:100%;padding:8px 4px;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;border:1.5px solid rgba(255,84,112,0.4);background:rgba(255,84,112,0.08);color:var(--red);margin-top:14px;}
+  .delete-student-btn:hover{background:rgba(255,84,112,0.2);}
+  .manage-panel{width:118px;flex-shrink:0;padding-left:10px;border-left:1px solid var(--line);position:sticky;top:80px;align-self:flex-start;}
+  .panel-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;text-align:center;}
+  .panel-active-name{font-size:12px;font-weight:800;color:#fff;margin-bottom:8px;text-align:center;min-height:15px;cursor:pointer;padding:3px;border-radius:6px;}
+  .panel-active-name:hover{background:rgba(255,255,255,0.06);}
+  .amt-btns{display:flex;flex-direction:column;gap:4px;}
+  .amt-btn{width:100%;padding:6px 4px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid;text-align:center;background:none;}
+  .amt-btn.pos{background:rgba(45,212,167,0.12);border-color:rgba(45,212,167,0.4);color:var(--green);}
+  .amt-btn.pos:hover{background:rgba(45,212,167,0.25);}
+  .amt-btn.neg{background:rgba(255,84,112,0.12);border-color:rgba(255,84,112,0.4);color:var(--red);}
+  .amt-btn.neg:hover{background:rgba(255,84,112,0.25);}
+  .amt-divider{border:none;border-top:1px solid var(--line);margin:6px 0;}
+  .tax-btn{width:100%;padding:8px 4px;border-radius:7px;font-size:12px;font-weight:900;cursor:pointer;border:1.5px solid rgba(139,0,0,0.6);background:rgba(139,0,0,0.25);color:#ff6a52;margin-top:4px;letter-spacing:0.03em;line-height:1.4;}
+  .undo-btn{width:100%;padding:6px 4px;border-radius:7px;font-size:11px;font-weight:800;cursor:pointer;border:1.5px solid rgba(255,200,0,0.4);background:rgba(255,200,0,0.08);color:#ffc800;margin:5px 0;opacity:0.4;}
+
+  /* ── DICE OVERLAY ── */
+  .dice-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:500;display:none;flex-direction:column;align-items:center;justify-content:center;}
+  .dice-overlay.active{display:flex;}
+  .dice-wrap{position:relative;width:140px;height:140px;}
+  .tax-sticker{position:absolute;top:-70px;left:50%;transform:translateX(-50%) rotate(-6deg);background:linear-gradient(135deg,var(--gold),#f59e0b);border:3px solid #7c4a00;border-radius:14px;padding:9px 18px;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.5);}
+  .tax-sticker .en{font-size:20px;font-weight:900;color:#1a0f00;display:block;text-align:center;}
+  .tax-sticker .zh{font-size:14px;font-weight:700;color:#5c3200;display:block;text-align:center;}
+  .dice-face{position:absolute;inset:0;background:linear-gradient(135deg,#8b0000,#cc0000);border-radius:22px;border:3px solid #ff4444;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 0 40px rgba(200,0,0,0.6);}
+  .dice-amount{font-size:30px;font-weight:900;color:#fff;font-family:'Space Grotesk',sans-serif;}
+  .dice-label{font-size:11px;font-weight:700;color:rgba(255,255,255,0.7);}
+  .dice-result{margin-top:22px;font-size:17px;font-weight:800;color:#fff;opacity:0;transition:opacity 0.3s;}
+  .dice-hint{margin-top:10px;font-size:12px;color:rgba(255,255,255,0.4);}
+
+  /* ── TOAST ── */
+  #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 18px;font-size:13px;font-weight:700;z-index:999;transition:transform 0.3s;white-space:nowrap;}
+  #toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:420px){ .manage-panel{width:98px;} }
+</style>
+</head>
+<body>
+
+<div class="app-header" id="app-header" style="display:none">
+  <div class="header-logo" onclick="goHome()">Robbie <span>Bucks</span> 🏆</div>
+  <div class="header-right">
+    <div class="header-bucks" id="header-bucks"></div>
+    <button class="btn-switch" id="btn-switch-user" onclick="switchUser()">⇄ Switch</button>
+    <div class="header-avatar" id="header-avatar"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div class="dice-overlay" id="dice-overlay" onclick="dismissDice()">
+  <div class="dice-wrap">
+    <div class="tax-sticker"><span class="en">😈 Robbie Tax 💰</span><span class="zh">💸 羅比稅 😈</span></div>
+    <div class="dice-face" id="dice-face">
+      <div class="dice-amount" id="dice-amount">?</div>
+      <div class="dice-label">未訂正</div>
+    </div>
+  </div>
+  <div class="dice-result" id="dice-result"></div>
+  <div class="dice-hint">tap to dismiss</div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="wrap">
+    <div class="login-hero">
+      <div class="disp">Robbie <span>Bucks</span> 🏆</div>
+      <div class="sub" style="margin-top:6px;margin-bottom:0;">Teacher Robbie's Classroom</div>
+    </div>
+    <div class="card">
+      <div class="field-label">Class Number</div>
+      <div style="position:relative;">
+        <input class="input" id="login-code" type="text" placeholder="e.g. 30105" autocomplete="off" oninput="checkLoginCode()" onkeydown="if(event.key==='Enter')doLogin()" style="text-align:center;letter-spacing:1px;padding-right:44px;">
+        <button type="button" id="login-mask-toggle" onclick="toggleLoginMask()" title="Hide input (for teacher passcodes)" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:6px;line-height:1;">🙈</button>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px;margin-bottom:18px;">寫你的班級＋號碼</div>
+      <button class="btn" id="btn-login" onclick="doLogin()" disabled>Let's Go →</button>
+      <div class="error-text" id="login-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE SETUP -->
+<div class="screen" id="screen-profile">
+  <div class="wrap">
+    <div class="h1" style="text-align:center;">建立你的個人檔案 🎉</div>
+    <div class="sub" style="text-align:center;">快速設定一下！</div>
+    <div class="card">
+      <div class="field-label">選擇你的頭像</div>
+      <div class="avatar-grid" id="avatar-grid"></div>
+      <div class="field-label">你的名字</div>
+      <input class="input" id="profile-name" type="text" placeholder="Your name" autocomplete="off" style="margin-bottom:18px;">
+      <div class="field-label" style="margin-bottom:10px;">你的班級</div>
+      <div id="class-grid"></div>
+      <button class="btn" onclick="saveProfile()" style="margin-top:6px;">儲存並開始 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT HOME -->
+<div class="screen with-header" id="screen-home">
+  <div class="wrap">
+    <div class="home-hero">
+      <div class="home-hello">Hey, <span id="home-name">there</span> 👋</div>
+      <div class="home-balance disp" id="home-balance">$0.00</div>
+      <div class="home-balance-label" id="home-class-label">Robbie Bucks</div>
+    </div>
+    <button class="nav-btn" onclick="showLeaderboard()">
+      <div class="nav-btn-icon">🏆</div>
+      <div><div class="nav-btn-title">Leaderboard</div><div class="nav-btn-sub">See where you rank</div></div>
+      <div class="nav-btn-arrow">›</div>
+    </button>
+  </div>
+</div>
+
+<!-- LEADERBOARD (student) -->
+<div class="screen with-header" id="screen-leaderboard">
+  <div class="wrap">
+    <button class="back-btn" onclick="goHome()">← 返回</button>
+    <div class="h1">🏆 Leaderboard</div>
+    <div class="sub">羅幣排行榜</div>
+    <div class="lb-tabs" id="lb-tabs"></div>
+    <div id="lb-content"></div>
+  </div>
+</div>
+
+<!-- TEACHER HOME -->
+<div class="screen with-header" id="screen-teacher">
+  <div class="wrap">
+    <div class="teacher-badge">👩‍🏫 老師介面</div>
+    <div class="h1">Teacher Console</div>
+    <div class="sub">你想做什麼？</div>
+    <button class="nav-btn" onclick="showTeacherManage()">
+      <div class="nav-btn-icon">💵</div>
+      <div><div class="nav-btn-title">Manage Class</div><div class="nav-btn-sub">新增或扣除 羅幣</div></div>
+      <div class="nav-btn-arrow">›</div>
+    </button>
+    <button class="nav-btn" onclick="showTeacherRankings()">
+      <div class="nav-btn-icon">🏆</div>
+      <div><div class="nav-btn-title">View Rankings</div><div class="nav-btn-sub">班級 · 年級 · 全校排名</div></div>
+      <div class="nav-btn-arrow">›</div>
+    </button>
+  </div>
+</div>
+
+<!-- TEACHER MANAGE -->
+<div class="screen with-header" id="screen-teacher-manage" style="align-items:stretch;">
+  <div class="wrap" style="max-width:100%;padding:0 6px;">
+    <div style="padding:0 12px;">
+      <button class="back-btn" onclick="showScreen('screen-teacher')">← 返回</button>
+      <div class="h1">💵 Manage Class</div>
+    </div>
+    <div class="scroll-fade-wrap" style="padding:0 12px;">
+      <div class="class-pick-row" id="manage-class-picker"></div>
+    </div>
+    <div class="manage-grid" style="padding:0 12px;">
+      <div class="manage-roster-wrap">
+        <button class="add-student-btn" onclick="addStudent()">+ Add Student</button>
+        <div class="manage-roster" id="manage-roster"></div>
+      </div>
+      <div class="manage-panel">
+        <div class="panel-label">調整 羅幣</div>
+        <div class="panel-active-name" id="panel-active-name" onclick="editStudentName()">← 選擇學生</div>
+        <div class="amt-btns" id="pos-btns"></div>
+        <hr class="amt-divider">
+        <div class="amt-btns" id="neg-btns"></div>
+        <button class="delete-student-btn" onclick="deleteSelectedStudent()">🗑 Delete Student</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEACHER RANKINGS -->
+<div class="screen with-header" id="screen-teacher-rankings">
+  <div class="wrap" style="max-width:100%;padding:0 6px;">
+    <button class="back-btn" onclick="showScreen('screen-teacher')">← 返回</button>
+    <div class="h1" style="padding:0 12px;">🏆 Rankings</div>
+    <div class="lb-tabs" id="tr-tabs" style="padding:0 12px;"></div>
+    <div class="scroll-fade-wrap" style="padding:0 12px;">
+      <div id="tr-class-picker" class="class-pick-row"></div>
+    </div>
+    <div id="tr-content" style="padding:0 12px;"></div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyA9AgswaZ7Ab9qevXOL3ik2EGEkQVhDMXY",
+  authDomain: "robbie-bucks.firebaseapp.com",
+  projectId: "robbie-bucks",
+  storageBucket: "robbie-bucks.firebasestorage.app",
+  messagingSenderId: "35739756457",
+  appId: "1:35739756457:web:2c24755b2f46eec0e486b8",
+  databaseURL: "https://robbie-bucks-default-rtdb.asia-southeast1.firebasedatabase.app"
+};
+firebase.initializeApp(FIREBASE_CONFIG);
+var DB = firebase.database();
+
+// ═══ CONFIG ═══
+var TEACHER_PASSCODES = { '0531':'teacher-robbie' };
+var TEACHER_CODES = ['teacher-robbie','teacher-sherry'];
+function isHidden(code){ return TEACHER_CODES.indexOf(code)>-1 || /00$/.test(code); }
+
+var CLASSES = ['301','302','401','402','501','502','503','601','602'];
+var GRADE_OF = {'301':'3','302':'3','401':'4','402':'4','501':'5','502':'5','503':'5','601':'6','602':'6'};
+var GRADES = ['3','4','5','6'];
+var GRADE_NAME = {'3':'三年級','4':'四年級','5':'五年級','6':'六年級'};
+var GRADE_COLOR = {'3':'var(--g3)','4':'var(--g4)','5':'var(--g5)','6':'var(--g6)'};
+var MAX_PER_CLASS = 40; // assumption — adjust if class sizes differ
+var AVATARS = ['🐉','🦁','🐼','🦊','🐯','🦋','🐸','🦄','🐺','🦅'];
+
+var currentCode=null, userProfile=null, isTeacher=false, userManuallyMasked=false;
+var toastTimer;
+
+document.addEventListener('DOMContentLoaded', function(){});
+
+// ═══ SOUNDS ═══
+var _audioCtx=null;
+function _getAudio(){ if(!_audioCtx) _audioCtx=new (window.AudioContext||window.webkitAudioContext)(); return _audioCtx; }
+function playCaching(){
+  var ctx=_getAudio();
+  [[880,0,0.08],[1100,0.08,0.08],[1320,0.18,0.12]].forEach(function(n){
+    var o=ctx.createOscillator(),g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='triangle';o.frequency.value=n[0];
+    g.gain.setValueAtTime(0,ctx.currentTime+n[1]);
+    g.gain.linearRampToValueAtTime(0.35,ctx.currentTime+n[1]+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+n[1]+n[2]);
+    o.start(ctx.currentTime+n[1]); o.stop(ctx.currentTime+n[1]+n[2]+0.05);
+  });
+}
+function playWomp(){
+  var ctx=_getAudio(); var o=ctx.createOscillator(),g=ctx.createGain();
+  o.connect(g);g.connect(ctx.destination);o.type='sawtooth';
+  o.frequency.setValueAtTime(320,ctx.currentTime); o.frequency.linearRampToValueAtTime(120,ctx.currentTime+0.6);
+  g.gain.setValueAtTime(0.3,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.6);
+  o.start(ctx.currentTime); o.stop(ctx.currentTime+0.65);
+}
+function playEvilLaugh(){
+  var ctx=_getAudio();
+  var times=[0,0.18,0.36,0.58,0.78], freqs=[420,400,370,340,300];
+  times.forEach(function(t,i){
+    var o=ctx.createOscillator(),g=ctx.createGain(),dist=ctx.createWaveShaper();
+    var curve=new Float32Array(256);
+    for(var j=0;j<256;j++){var x=j*2/256-1;curve[j]=x*(Math.abs(x)+0.3)/(x*x*0.3+1);}
+    dist.curve=curve;
+    o.connect(dist);dist.connect(g);g.connect(ctx.destination);o.type='sawtooth';
+    o.frequency.setValueAtTime(freqs[i],ctx.currentTime+t);
+    o.frequency.linearRampToValueAtTime(freqs[i]*0.75,ctx.currentTime+t+0.15);
+    g.gain.setValueAtTime(0,ctx.currentTime+t);
+    g.gain.linearRampToValueAtTime(0.25,ctx.currentTime+t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+t+0.15);
+    o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+0.2);
+  });
+}
+
+// ═══ UTIL ═══
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function showToast(msg){ var t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(function(){t.classList.remove('show');},2200); }
+function showScreen(id){ document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');}); document.getElementById(id).classList.add('active'); }
+function goHome(){ if(isTeacher){showScreen('screen-teacher');return;} showScreen('screen-home'); }
+
+function switchUser(){
+  currentCode=null; userProfile=null; isTeacher=false; userManuallyMasked=false;
+  document.getElementById('app-header').style.display='none';
+  document.getElementById('btn-switch-user').style.display='none';
+  document.getElementById('header-bucks').style.display='none';
+  document.getElementById('login-code').value='';
+  document.getElementById('login-code').type='text';
+  document.getElementById('login-mask-toggle').textContent='🙈';
+  document.getElementById('btn-login').disabled=true;
+  document.getElementById('login-error').textContent='';
+  showScreen('screen-login');
+}
+
+// ═══ LOGIN ═══
+function toggleLoginMask(){
+  var input=document.getElementById('login-code');
+  var btn=document.getElementById('login-mask-toggle');
+  var hidden=input.type==='password';
+  input.type=hidden?'text':'password';
+  btn.textContent=hidden?'🙈':'🙉';
+  userManuallyMasked=!hidden;
+}
+function checkLoginCode(){
+  var input=document.getElementById('login-code');
+  var v=input.value.trim();
+  if(v.length===0){ userManuallyMasked=false; }
+  if(v.charAt(0)==='0' && input.type==='text'){
+    input.type='password';
+    document.getElementById('login-mask-toggle').textContent='🙉';
+  } else if(v.charAt(0)!=='0' && v.length>0 && input.type==='password' && !userManuallyMasked){
+    input.type='text';
+    document.getElementById('login-mask-toggle').textContent='🙈';
+  }
+  document.getElementById('btn-login').disabled=v.length<3;
+  document.getElementById('login-error').textContent='';
+}
+
+function doLogin(){
+  var code=document.getElementById('login-code').value.trim();
+  if(!code) return;
+
+  if(TEACHER_PASSCODES[code]){
+    currentCode=TEACHER_PASSCODES[code]; isTeacher=true;
+    document.getElementById('app-header').style.display='flex';
+    document.getElementById('btn-switch-user').style.display='inline-block';
+    document.getElementById('header-avatar').textContent='👩‍🏫';
+    document.getElementById('header-bucks').style.display='none';
+    showScreen('screen-teacher');
+    return;
+  }
+
+  var classMatch=null;
+  for(var i=0;i<CLASSES.length;i++){ if(code.indexOf(CLASSES[i])===0){ classMatch=CLASSES[i]; break; } }
+  if(!classMatch){ document.getElementById('login-error').textContent='❌ 班級不對！請再試一次 (e.g. 30105)'; return; }
+  var numPart=code.slice(classMatch.length);
+  var num=parseInt(numPart,10);
+  if(isNaN(num)||num<1||num>MAX_PER_CLASS||numPart!==String(num).padStart(2,'0')){
+    document.getElementById('login-error').textContent='❌ 號碼不對！請輸入 01–'+String(MAX_PER_CLASS).padStart(2,'0');
+    return;
+  }
+
+  currentCode=code; isTeacher=false;
+  document.getElementById('btn-login').disabled=true;
+  document.getElementById('login-error').textContent='';
+
+  DB.ref('users/'+code+'/profile').once('value').then(function(snap){
+    userProfile=snap.val();
+    document.getElementById('app-header').style.display='flex';
+    document.getElementById('btn-switch-user').style.display='inline-block';
+    if(!userProfile||!userProfile.name){ buildProfileScreen(classMatch); showScreen('screen-profile'); }
+    else { updateHeaderUI(); updateHomeUI(); showScreen('screen-home'); }
+  }).catch(function(e){
+    document.getElementById('login-error').textContent='⚠️ '+e.message;
+    document.getElementById('btn-login').disabled=false;
+  });
+}
+
+// ═══ PROFILE ═══
+function buildProfileScreen(preselected){
+  var grid=document.getElementById('avatar-grid'); grid.innerHTML='';
+  AVATARS.forEach(function(a,i){
+    var d=document.createElement('div'); d.className='avatar-opt'+(i===0?' selected':''); d.textContent=a; d.dataset.avatar=a;
+    d.onclick=function(){ document.querySelectorAll('.avatar-opt').forEach(function(x){x.classList.remove('selected');}); d.classList.add('selected'); };
+    grid.appendChild(d);
+  });
+  var cg=document.getElementById('class-grid'); cg.innerHTML='';
+  GRADES.forEach(function(g){
+    var group=document.createElement('div'); group.className='grade-group';
+    var label=document.createElement('div'); label.className='grade-group-label'; label.textContent=GRADE_NAME[g]+' · Grade '+g;
+    group.appendChild(label);
+    var row=document.createElement('div'); row.className='class-row';
+    CLASSES.filter(function(c){return GRADE_OF[c]===g;}).forEach(function(c){
+      var d=document.createElement('div'); d.className='class-opt'+(c===preselected?' selected':'');
+      d.textContent=c; d.dataset.class=c;
+      if(c===preselected){ d.style.borderColor=GRADE_COLOR[g]; d.style.color=GRADE_COLOR[g]; d.style.background='rgba(255,255,255,0.04)'; }
+      d.onclick=function(){
+        document.querySelectorAll('.class-opt').forEach(function(x){x.classList.remove('selected');x.style.borderColor='';x.style.color='';x.style.background='';});
+        d.classList.add('selected'); d.style.borderColor=GRADE_COLOR[g]; d.style.color=GRADE_COLOR[g]; d.style.background='rgba(255,255,255,0.04)';
+      };
+      row.appendChild(d);
+    });
+    group.appendChild(row);
+    cg.appendChild(group);
+  });
+}
+
+function saveProfile(){
+  var name=document.getElementById('profile-name').value.trim();
+  var avatarEl=document.querySelector('.avatar-opt.selected');
+  var classEl=document.querySelector('.class-opt.selected');
+  if(!name){ showToast('請輸入你的名字！'); return; }
+  if(!classEl){ showToast('請選擇你的班級！'); return; }
+  userProfile={ name:name, avatar:avatarEl?avatarEl.dataset.avatar:'🐉', class:classEl.dataset.class, robbiBucks:0 };
+  DB.ref('users/'+currentCode+'/profile').set(userProfile).then(function(){
+    updateHeaderUI(); updateHomeUI(); showScreen('screen-home');
+  });
+}
+
+function updateHeaderUI(){
+  if(!userProfile) return;
+  document.getElementById('header-avatar').textContent=userProfile.avatar||'🐉';
+  DB.ref('users/'+currentCode+'/profile/robbiBucks').on('value', function(snap){
+    var b=snap.val()||0;
+    document.getElementById('header-bucks').style.display='block';
+    document.getElementById('header-bucks').textContent='$'+Number(b).toFixed(2);
+    if(userProfile) userProfile.robbiBucks=b;
+    var homeBal=document.getElementById('home-balance');
+    if(homeBal) homeBal.textContent='$'+Number(b).toFixed(2);
+  });
+}
+
+function updateHomeUI(){
+  if(!userProfile) return;
+  document.getElementById('home-name').textContent=userProfile.name;
+  document.getElementById('home-class-label').textContent=userProfile.class+' · '+GRADE_NAME[GRADE_OF[userProfile.class]]+' Robbie Bucks';
+}
+
+// ═══ STUDENT LEADERBOARD ═══
+var lbActiveTab='class';
+
+function showLeaderboard(){
+  showScreen('screen-leaderboard');
+  var tabs=document.getElementById('lb-tabs'); tabs.innerHTML='';
+  var defs=[
+    {id:'class', en:'My Class', zh:'我的班級'},
+    {id:'grade', en:'My Grade', zh:'我的年級'},
+    {id:'school', en:'School', zh:'全校'},
+    {id:'me', en:'Me vs School', zh:'我 vs 全校'}
+  ];
+  defs.forEach(function(d){
+    var b=document.createElement('button'); b.className='lb-tab'+(d.id==='class'?' active':'');
+    b.innerHTML='<span class="en">'+d.en+'</span><span class="zh">'+d.zh+'</span>';
+    b.onclick=function(){ document.querySelectorAll('#lb-tabs .lb-tab').forEach(function(x){x.classList.remove('active');}); b.classList.add('active'); lbActiveTab=d.id; renderLbTab(d.id); };
+    tabs.appendChild(b);
+  });
+  renderLbTab('class');
+}
+
+function renderLbTab(id){
+  if(id==='class') return loadLbList(function(u){return u.class===userProfile.class;}, null);
+  if(id==='grade') return loadLbList(function(u){return GRADE_OF[u.class]===GRADE_OF[userProfile.class];}, 'class');
+  if(id==='school') return loadLbList(function(){return true;}, 'class');
+  if(id==='me') return loadMeVsSchool();
+}
+
+function loadLbList(filterFn, tagField){
+  var el=document.getElementById('lb-content'); el.innerHTML='<div class="loading">載入中...</div>';
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, entries=[];
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      if(!filterFn(u.profile)) return;
+      entries.push({code:code,name:u.profile.name,avatar:u.profile.avatar||'🐉',cls:u.profile.class,bucks:u.profile.robbiBucks||0});
+    });
+    entries.sort(function(a,b){return b.bucks-a.bucks;});
+    renderRows(el, entries, currentCode, tagField);
+  });
+}
+
+function renderRows(el, entries, meCode, tagField){
+  el.innerHTML='';
+  if(entries.length===0){ el.innerHTML='<div class="empty">還沒有學生！</div>'; return; }
+  var maxB=Math.max.apply(null, entries.map(function(e){return e.bucks;}).concat([1]));
+  var medals=['🥇','🥈','🥉'];
+  entries.forEach(function(e,i){
+    var isMe=e.code===meCode;
+    var pct=Math.max(2,(Math.max(0,e.bucks)/Math.max(1,maxB))*100);
+    var color=isMe?'var(--gold)':(tagField?GRADE_COLOR[GRADE_OF[e.cls]]:'var(--gold)');
+    var tag=tagField?'<span class="row-tag" style="background:'+GRADE_COLOR[GRADE_OF[e.cls]]+'22;color:'+GRADE_COLOR[GRADE_OF[e.cls]]+';">'+e.cls+'</span>':'';
+    var row=document.createElement('div'); row.className='row'+(isMe?' me':'');
+    row.innerHTML=
+      '<div class="row-rank'+(i===0?' r1':i===1?' r2':i===2?' r3':'')+'">'+(i<3?medals[i]:i+1)+'</div>'+
+      '<div class="row-avatar">'+e.avatar+'</div>'+
+      '<div class="row-info"><div class="row-name">'+esc(e.name)+(isMe?' (You)':'')+tag+'</div>'+
+      '<div class="row-bar-track"><div class="row-bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div></div>'+
+      '<div class="row-amount'+(e.bucks<0?' neg':'')+'">$'+Number(e.bucks).toFixed(2)+'</div>';
+    el.appendChild(row);
+  });
+}
+
+function loadMeVsSchool(){
+  var el=document.getElementById('lb-content'); el.innerHTML='<div class="loading">載入中...</div>';
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, entries=[];
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      entries.push({code:code,bucks:u.profile.robbiBucks||0});
+    });
+    entries.sort(function(a,b){return b.bucks-a.bucks;});
+    var myIdx=entries.findIndex(function(e){return e.code===currentCode;});
+    var myRank=myIdx>-1?myIdx+1:entries.length;
+    var total=entries.length;
+    var myBucks=myIdx>-1?entries[myIdx].bucks:0;
+    var avg=total>0?entries.reduce(function(s,e){return s+e.bucks;},0)/total:0;
+    var top=entries.length?entries[0].bucks:0;
+    var pctile=total>1?Math.round(((total-myRank)/(total-1))*100):100;
+
+    el.innerHTML=
+      '<div class="mvs-hero">'+
+        '<div class="mvs-rank disp">#'+myRank+'</div>'+
+        '<div class="mvs-rank-label">of '+total+' students school-wide · top '+(100-pctile<1?1:100-pctile)+'%</div>'+
+      '</div>'+
+      '<div class="mvs-stats">'+
+        '<div class="mvs-stat"><div class="mvs-stat-val" style="color:var(--gold)">$'+Number(myBucks).toFixed(2)+'</div><div class="mvs-stat-label">Your Bucks</div></div>'+
+        '<div class="mvs-stat"><div class="mvs-stat-val">$'+Number(avg).toFixed(2)+'</div><div class="mvs-stat-label">School Avg</div></div>'+
+        '<div class="mvs-stat"><div class="mvs-stat-val">$'+Number(top).toFixed(2)+'</div><div class="mvs-stat-label">Top Score</div></div>'+
+      '</div>'+
+      '<div class="mvs-compare">'+
+        '<div class="mvs-compare-row"><div class="mvs-compare-label">You</div><div class="mvs-compare-track"><div class="mvs-compare-fill" style="width:'+Math.max(2,Math.min(100,myBucks/Math.max(1,top)*100))+'%;background:var(--gold);"></div></div><div class="mvs-compare-val">$'+Number(myBucks).toFixed(2)+'</div></div>'+
+        '<div class="mvs-compare-row"><div class="mvs-compare-label">Average</div><div class="mvs-compare-track"><div class="mvs-compare-fill" style="width:'+Math.max(2,Math.min(100,avg/Math.max(1,top)*100))+'%;background:var(--muted);"></div></div><div class="mvs-compare-val">$'+Number(avg).toFixed(2)+'</div></div>'+
+      '</div>';
+  });
+}
+
+// ═══ TEACHER: MANAGE CLASS ═══
+var manageActiveClass=null;
+var selectedStudentCode=null, selectedStudentRowId=null, undoOriginalBucks=null, undoTimer=null;
+
+function showTeacherManage(){
+  showScreen('screen-teacher-manage');
+  var picker=document.getElementById('manage-class-picker'); picker.innerHTML='';
+  CLASSES.forEach(function(c){
+    var b=document.createElement('button'); b.className='class-pick'; b.textContent=c;
+    b.onclick=function(){
+      document.querySelectorAll('#manage-class-picker .class-pick').forEach(function(x){x.classList.remove('active');x.style.background='';x.style.borderColor='';x.style.color='';});
+      b.classList.add('active'); b.style.background=GRADE_COLOR[GRADE_OF[c]]; b.style.borderColor=GRADE_COLOR[GRADE_OF[c]]; b.style.color='#0a0a0a';
+      manageActiveClass=c; selectedStudentCode=null; selectedStudentRowId=null;
+      document.getElementById('panel-active-name').textContent='← 選擇學生';
+      buildControlsPanel(); loadManageRoster(c);
+    };
+    picker.appendChild(b);
+  });
+  document.getElementById('manage-roster').innerHTML='<div class="empty">Select a class above</div>';
+  document.getElementById('panel-active-name').textContent='← 選擇學生';
+}
+
+function loadManageRoster(cls){
+  var el=document.getElementById('manage-roster');
+  // Only show a loading placeholder on a genuinely empty roster (e.g. first
+  // time opening this class). If rows already exist, leave them in place —
+  // wiping them here would destroy the DOM nodes renderManageRows needs to
+  // reuse for the float animation, and cause a stray leftover "loading" box.
+  if(!el.querySelector('.row[data-code]')){ el.innerHTML='<div class="loading">載入中...</div>'; }
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, entries=[];
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      if(u.profile.class!==cls) return;
+      entries.push({code:code,name:u.profile.name,avatar:u.profile.avatar||'🐉',bucks:u.profile.robbiBucks||0});
+    });
+    entries.sort(function(a,b){return b.bucks-a.bucks;});
+    lastManageCount=entries.length;
+    renderManageRows(entries, GRADE_COLOR[GRADE_OF[cls]]);
+  });
+}
+
+function renderManageRows(entries, color){
+  var el=document.getElementById('manage-roster');
+  // FLIP animation, done properly: reuse existing row DOM nodes instead of
+  // destroying and recreating everything. Destroying+recreating a node is
+  // itself what causes the "blink" — a transform animation can't run
+  // smoothly across a node that no longer exists on the next frame.
+  var firstRects={}, existingByCode={};
+  Array.prototype.forEach.call(el.querySelectorAll('.row[data-code]'), function(r){
+    firstRects[r.dataset.code]=r.getBoundingClientRect();
+    existingByCode[r.dataset.code]=r;
+  });
+  if(entries.length===0){ el.innerHTML='<div class="empty">還沒有學生</div>'; return; }
+  var loadingEl=el.querySelector('.loading'); if(loadingEl) loadingEl.remove();
+  var emptyEl=el.querySelector('.empty'); if(emptyEl) emptyEl.remove();
+  // Two explicit columns, split by JS — not CSS column-count. CSS multi-column
+  // balancing is a browser heuristic and can silently clip a row that renders
+  // taller than expected, with no way to scroll to it. This way the split is
+  // exact and predictable: first half in col 1, rest in col 2.
+  var useTwoCols = entries.length>10;
+  var col1=el.querySelector('#manage-roster-col1'), col2=el.querySelector('#manage-roster-col2');
+  if(!col1){ col1=document.createElement('div'); col1.className='manage-roster-col'; col1.id='manage-roster-col1'; el.appendChild(col1); }
+  if(!col2){ col2=document.createElement('div'); col2.className='manage-roster-col'; col2.id='manage-roster-col2'; el.appendChild(col2); }
+  col2.style.display = useTwoCols ? 'flex' : 'none';
+  var splitAt = useTwoCols ? Math.ceil(entries.length/2) : entries.length;
+  var maxB=Math.max.apply(null, entries.map(function(e){return e.bucks;}).concat([1]));
+  var medals=['🥇','🥈','🥉'];
+  var seen={};
+  entries.forEach(function(e,i){
+    var rowId='mrow-'+e.code.replace(/[^a-z0-9]/gi,'');
+    var isSel=e.code===selectedStudentCode;
+    var pct=Math.max(2,(Math.max(0,e.bucks)/Math.max(1,maxB))*100);
+    var row=existingByCode[e.code];
+    if(!row){ row=document.createElement('div'); row.dataset.code=e.code; }
+    row.className='row'; row.id=rowId;
+    row.style.borderColor=isSel?'var(--gold)':'';
+    row.style.background=isSel?'rgba(255,183,3,0.08)':'';
+    row.style.cursor='pointer';
+    row.innerHTML=
+      '<div class="row-rank'+(i===0?' r1':i===1?' r2':i===2?' r3':'')+'">'+(i<3?medals[i]:i+1)+'</div>'+
+      '<div class="row-avatar">'+e.avatar+'</div>'+
+      '<div class="row-info"><div class="row-name">'+esc(e.name)+'</div>'+
+      '<div class="row-bar-track"><div class="row-bar-fill" style="width:'+pct+'%;background:'+color+';"></div></div></div>'+
+      '<div class="row-amount'+(e.bucks<0?' neg':'')+'" id="bucks-'+rowId+'">$'+Number(e.bucks).toFixed(2)+'</div>';
+    row.onclick=function(){ selectStudent(e.code, e.name, rowId); };
+    (i<splitAt?col1:col2).appendChild(row); // moves the node if it already existed, matching the new sorted order
+    seen[e.code]=true;
+  });
+  // Remove rows for students no longer in this list (e.g. deleted).
+  Object.keys(existingByCode).forEach(function(code){
+    if(!seen[code]) existingByCode[code].remove();
+  });
+  fitRosterToScreen(entries.length);
+  // Play the FLIP animation for any reused row that moved.
+  requestAnimationFrame(function(){
+    Array.prototype.forEach.call(el.querySelectorAll('.row[data-code]'), function(r){
+      var first=firstRects[r.dataset.code];
+      if(!first) return; // brand new row — nothing to animate from
+      var last=r.getBoundingClientRect();
+      var dx=first.left-last.left, dy=first.top-last.top;
+      if(Math.abs(dx)<1 && Math.abs(dy)<1) return; // didn't move — skip
+      r.style.transition='none';
+      r.style.transform='translate('+dx+'px,'+dy+'px)';
+      void r.offsetWidth; // force the browser to paint the snapped-back position before animating
+      requestAnimationFrame(function(){
+        r.style.transition='transform 0.35s cubic-bezier(.2,.8,.2,1)';
+        r.style.transform='translate(0,0)';
+        r.addEventListener('transitionend', function te(){
+          r.style.transition=''; r.style.transform='';
+          r.removeEventListener('transitionend', te);
+        });
+      });
+    });
+  });
+}
+
+function fitRosterToScreen(n){
+  var el=document.getElementById('manage-roster');
+  if(!el||!n) return;
+  var available=el.clientHeight;
+  if(!available) return;
+  var baseRowHeight=58; // row height at scale 1 (padding+content+margin, matches default .row CSS)
+  var minScale=0.28, maxScale=4;
+  var cols = n>10 ? 2 : 1;
+  var rowsPerCol = Math.ceil(n/cols);
+  var rawScale=available/(rowsPerCol*baseRowHeight);
+  var scale=Math.max(minScale,Math.min(maxScale,rawScale));
+  el.style.overflowY='hidden';
+  el.style.setProperty('--rs', scale);
+  // The formula above is only a starting estimate — actual rendered row
+  // height varies with name length/wrapping, so measure the real result and
+  // shrink further if it still overflows, instead of falling back to scroll.
+  // A few passes converge quickly since height scales ~linearly with --rs.
+  var attempts=0;
+  function shrinkToFit(){
+    attempts++;
+    if(el.scrollHeight<=el.clientHeight+1 || attempts>6 || scale<=minScale+0.001){ return; }
+    scale=Math.max(minScale, scale*(el.clientHeight/el.scrollHeight)*0.97);
+    el.style.setProperty('--rs', scale);
+    requestAnimationFrame(shrinkToFit);
+  }
+  requestAnimationFrame(shrinkToFit);
+}
+window.addEventListener('resize', function(){
+  var active=document.getElementById('screen-teacher-manage');
+  if(active&&active.classList.contains('active')) fitRosterToScreen(lastManageCount);
+});
+var lastManageCount=0;
+
+function buildControlsPanel(){
+  var POS=[{v:100,l:'+$100.00'},{v:50,l:'+$50.00'},{v:20,l:'+$20.00'},{v:10,l:'+$10.00'},{v:5,l:'+$5.00'},{v:1,l:'+$1.00'}];
+  var NEG=[{v:-1,l:'-$1.00'},{v:-5,l:'-$5.00'},{v:-10,l:'-$10.00'}];
+  var posEl=document.getElementById('pos-btns'); posEl.innerHTML='';
+  POS.forEach(function(p){
+    var b=document.createElement('button'); b.className='amt-btn pos'; b.textContent=p.l;
+    b.onclick=function(){ if(selectedStudentCode) applyDirect(selectedStudentCode,p.v,selectedStudentRowId); else showToast('← 先選擇學生'); };
+    posEl.appendChild(b);
+  });
+  var negEl=document.getElementById('neg-btns'); negEl.innerHTML='';
+  var undo=document.createElement('button'); undo.id='undo-btn'; undo.className='undo-btn'; undo.textContent='↩ Undo';
+  undo.onclick=function(){ doUndo(); };
+  negEl.appendChild(undo);
+  NEG.forEach(function(n){
+    var b=document.createElement('button'); b.className='amt-btn neg'; b.textContent=n.l;
+    b.onclick=function(){ if(selectedStudentCode) applyDirect(selectedStudentCode,n.v,selectedStudentRowId); else showToast('← 先選擇學生'); };
+    negEl.appendChild(b);
+  });
+  var tax=document.createElement('button'); tax.className='tax-btn'; tax.innerHTML='😈 Robbie Tax<br><span style="font-size:10px;opacity:0.85;">羅比稅</span>';
+  tax.onclick=function(){ if(selectedStudentCode) rollDice(); else showToast('← 先選擇學生'); };
+  negEl.appendChild(tax);
+}
+
+function selectStudent(code,name,rowId){
+  if(selectedStudentRowId){ var prev=document.getElementById(selectedStudentRowId); if(prev){ prev.style.borderColor=''; prev.style.background=''; } }
+  selectedStudentCode=code; selectedStudentRowId=rowId;
+  document.getElementById('panel-active-name').textContent=name;
+  var row=document.getElementById(rowId);
+  if(row){ row.style.borderColor='var(--gold)'; row.style.background='rgba(255,183,3,0.08)'; }
+  DB.ref('users/'+code+'/profile/robbiBucks').once('value').then(function(snap){
+    undoOriginalBucks=snap.val()||0;
+    var btn=document.getElementById('undo-btn'); if(btn) btn.style.opacity='1';
+    clearTimeout(undoTimer);
+    undoTimer=setTimeout(function(){ undoOriginalBucks=null; if(btn) btn.style.opacity='0.4'; },60000);
+  });
+}
+
+function addStudent(){
+  if(!manageActiveClass){ showToast('← 先選擇班級'); return; }
+  var name=prompt('新學生的名字：');
+  if(!name||!name.trim()) return;
+  name=name.trim();
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, existingNums=[];
+    Object.keys(users).forEach(function(code){
+      if(code.indexOf(manageActiveClass)===0){
+        var n=parseInt(code.slice(manageActiveClass.length),10);
+        if(!isNaN(n)) existingNums.push(n);
+      }
+    });
+    var next=1;
+    while(existingNums.indexOf(next)>-1 && next<=MAX_PER_CLASS) next++;
+    if(next>MAX_PER_CLASS){ showToast('❌ 這個班已經滿了'); return; }
+    var code=manageActiveClass+String(next).padStart(2,'0');
+    DB.ref('users/'+code+'/profile').set({name:name,avatar:'🐉',class:manageActiveClass,robbiBucks:0}).then(function(){
+      showToast('✓ 已新增：'+name+' ('+code+')');
+      loadManageRoster(manageActiveClass);
+    });
+  });
+}
+
+function deleteSelectedStudent(){
+  if(!selectedStudentCode){ showToast('← 先選擇學生'); return; }
+  var name=document.getElementById('panel-active-name').textContent;
+  var pass=prompt('輸入密碼以刪除「'+name+'」：');
+  if(pass===null) return;
+  if(!TEACHER_PASSCODES[pass.trim()]){ showToast('❌ 密碼錯誤'); return; }
+  if(!confirm('確定要刪除「'+name+'」嗎？這無法復原！')) return;
+  var code=selectedStudentCode;
+  DB.ref('users/'+code).remove().then(function(){
+    showToast('🗑 已刪除：'+name);
+    selectedStudentCode=null; selectedStudentRowId=null;
+    document.getElementById('panel-active-name').textContent='← 選擇學生';
+    var btn=document.getElementById('undo-btn'); if(btn) btn.style.opacity='0.4';
+    loadManageRoster(manageActiveClass);
+  });
+}
+
+function editStudentName(){
+  if(!selectedStudentCode){ showToast('← 先選擇學生'); return; }
+  var current=document.getElementById('panel-active-name').textContent;
+  var pass=prompt('輸入密碼以改名字：');
+  if(pass===null) return;
+  if(!TEACHER_PASSCODES[pass.trim()]){ showToast('❌ 密碼錯誤'); return; }
+  var newName=prompt('改名字：',current);
+  if(!newName||!newName.trim()||newName.trim()===current) return;
+  newName=newName.trim();
+  DB.ref('users/'+selectedStudentCode+'/profile/name').set(newName).then(function(){
+    document.getElementById('panel-active-name').textContent=newName;
+    loadManageRoster(manageActiveClass);
+    showToast('✓ 名字已更新：'+newName);
+  });
+}
+
+function doUndo(){
+  if(!selectedStudentCode||undoOriginalBucks===null){ showToast('Nothing to undo'); return; }
+  DB.ref('users/'+selectedStudentCode+'/profile/robbiBucks').set(undoOriginalBucks).then(function(){
+    loadManageRoster(manageActiveClass);
+    undoOriginalBucks=null; clearTimeout(undoTimer);
+    var btn=document.getElementById('undo-btn'); if(btn) btn.style.opacity='0.4';
+    showToast('↩ Undone!');
+  });
+}
+
+function applyDirect(code,amount,rowId){
+  if(amount>0) playCaching(); else playWomp();
+  var ref=DB.ref('users/'+code+'/profile/robbiBucks');
+  ref.once('value').then(function(snap){
+    var cur=snap.val()||0;
+    var newVal=Math.round((cur+amount)*100)/100;
+    ref.set(newVal).then(function(){
+      loadManageRoster(manageActiveClass);
+      showToast((amount>0?'+':'')+amount.toFixed(2)+' 羅幣 ✓');
+    });
+  });
+}
+
+// ═══ ROBBIE TAX DICE ═══
+function rollDice(){
+  var pctOutcomes=[10,10,10,10,10,10,20,20,20,20];
+  var pct=pctOutcomes[Math.floor(Math.random()*pctOutcomes.length)];
+  var overlay=document.getElementById('dice-overlay');
+  var face=document.getElementById('dice-face');
+  var amountEl=document.getElementById('dice-amount');
+  var resultLabel=document.getElementById('dice-result');
+  resultLabel.style.opacity='0'; resultLabel.textContent='';
+  overlay.classList.add('active');
+  var spinValues=[5,10,15,20,25,30]; var spinIdx=0, spinCount=0;
+  var totalSpins=18+Math.floor(Math.random()*8);
+  amountEl.textContent=spinValues[0]+'%';
+  var spinInterval=setInterval(function(){
+    spinIdx=(spinIdx+1)%6; amountEl.textContent=spinValues[spinIdx]+'%';
+    var colors=[['#8b0000','#cc0000'],['#5a0050','#aa0099'],['#003366','#0055bb'],['#6b4400','#bb7700'],['#004400','#007700'],['#000066','#0000bb']];
+    var c=colors[spinIdx%6];
+    face.style.background='linear-gradient(135deg,'+c[0]+','+c[1]+')';
+    spinCount++;
+    if(spinCount>totalSpins-4){ clearInterval(spinInterval); slowSpin(pct,3); }
+  },80);
+}
+function slowSpin(pct,remaining){
+  var amountEl=document.getElementById('dice-amount');
+  if(remaining<=0){ landDice(pct); return; }
+  var spinValues=[10,20];
+  var next=remaining===1?pct:spinValues[Math.floor(Math.random()*2)];
+  amountEl.textContent=next+'%';
+  setTimeout(function(){ slowSpin(pct,remaining-1); },150+((3-remaining)*80));
+}
+function landDice(pct){
+  var face=document.getElementById('dice-face');
+  var amountEl=document.getElementById('dice-amount');
+  var resultLabel=document.getElementById('dice-result');
+  amountEl.textContent=pct+'%';
+  face.style.background='linear-gradient(135deg,#6b0000,#aa0000)';
+  playEvilLaugh();
+  setTimeout(function(){
+    DB.ref('users/'+selectedStudentCode+'/profile/robbiBucks').once('value').then(function(snap){
+      var cur=snap.val()||0;
+      var deduction=Math.round(cur*(pct/100));
+      if(cur<=0){
+        var flat=[-5,-5,-5,-10,-10,-10,-20,-20][Math.floor(Math.random()*8)];
+        resultLabel.textContent='未訂正 $'+flat+'.00 羅幣 💸'; resultLabel.style.opacity='1';
+        applyDirect(selectedStudentCode,flat,selectedStudentRowId);
+        return;
+      }
+      var label=pct===10?'未訂正':'大懲罰！！';
+      resultLabel.textContent=label+' -'+pct+'% (-$'+deduction+'.00)'; resultLabel.style.opacity='1';
+      applyDirect(selectedStudentCode,-deduction,selectedStudentRowId);
+    });
+  },300);
+}
+function dismissDice(){
+  var overlay=document.getElementById('dice-overlay'); overlay.classList.remove('active');
+}
+
+// ═══ TEACHER: RANKINGS ═══
+var trActiveTab='class', trActiveClass=CLASSES[0];
+
+function showTeacherRankings(){
+  showScreen('screen-teacher-rankings');
+  var tabs=document.getElementById('tr-tabs'); tabs.innerHTML='';
+  var defs=[{id:'class',en:'Class',zh:'班級'},{id:'grade',en:'Grade',zh:'年級'},{id:'school',en:'School',zh:'全校'}];
+  defs.forEach(function(d){
+    var b=document.createElement('button'); b.className='lb-tab'+(d.id==='class'?' active':'');
+    b.innerHTML='<span class="en">'+d.en+'</span><span class="zh">'+d.zh+'</span>';
+    b.onclick=function(){ document.querySelectorAll('#tr-tabs .lb-tab').forEach(function(x){x.classList.remove('active');}); b.classList.add('active'); trActiveTab=d.id; renderTrTab(); };
+    tabs.appendChild(b);
+  });
+  renderTrTab();
+}
+
+function renderTrTab(){
+  var picker=document.getElementById('tr-class-picker');
+  if(trActiveTab==='class'){
+    picker.style.display='flex'; picker.innerHTML='';
+    CLASSES.forEach(function(c){
+      var b=document.createElement('button'); b.className='class-pick'+(c===trActiveClass?' active':'');
+      b.textContent=c;
+      if(c===trActiveClass){ b.style.background=GRADE_COLOR[GRADE_OF[c]]; b.style.borderColor=GRADE_COLOR[GRADE_OF[c]]; b.style.color='#0a0a0a'; }
+      b.onclick=function(){ trActiveClass=c; renderTrTab(); };
+      picker.appendChild(b);
+      if(c===trActiveClass){ setTimeout(function(){ b.scrollIntoView({block:'nearest',inline:'nearest'}); },0); }
+    });
+    loadTrClass(trActiveClass);
+  } else if(trActiveTab==='grade'){
+    picker.style.display='none'; picker.innerHTML='';
+    loadTrGrade();
+  } else {
+    picker.style.display='none'; picker.innerHTML='';
+    loadTrSchool();
+  }
+}
+
+function loadTrClass(cls){
+  var el=document.getElementById('tr-content'); el.innerHTML='<div class="loading">載入中...</div>';
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, entries=[];
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      if(u.profile.class!==cls) return;
+      entries.push({code:code,name:u.profile.name,avatar:u.profile.avatar||'🐉',cls:cls,bucks:u.profile.robbiBucks||0});
+    });
+    entries.sort(function(a,b){return b.bucks-a.bucks;});
+    renderRows(el, entries, null, null);
+  });
+}
+
+function loadTrGrade(){
+  var el=document.getElementById('tr-content'); el.innerHTML='<div class="loading">載入中...</div>';
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{};
+    var totals={}, counts={};
+    GRADES.forEach(function(g){ totals[g]=0; counts[g]=0; });
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      var g=GRADE_OF[u.profile.class];
+      if(g===undefined) return;
+      totals[g]+=u.profile.robbiBucks||0; counts[g]++;
+    });
+    var entries=GRADES.map(function(g){ return {g:g,total:totals[g],avg:counts[g]?totals[g]/counts[g]:0,count:counts[g]}; });
+    entries.sort(function(a,b){return b.avg-a.avg;});
+    el.innerHTML='';
+    var maxAvg=Math.max.apply(null, entries.map(function(e){return e.avg;}).concat([1]));
+    var medals=['🥇','🥈','🥉'];
+    entries.forEach(function(e,i){
+      var pct=Math.max(2,(e.avg/maxAvg)*100);
+      var row=document.createElement('div'); row.className='row';
+      row.innerHTML=
+        '<div class="row-rank'+(i===0?' r1':i===1?' r2':i===2?' r3':'')+'">'+(i<3?medals[i]:i+1)+'</div>'+
+        '<div class="row-info"><div class="row-name" class="zh">'+GRADE_NAME[e.g]+' · Grade '+e.g+' <span style="color:var(--muted);font-weight:600;font-size:12px;">('+e.count+' students)</span></div>'+
+        '<div class="row-bar-track"><div class="row-bar-fill" style="width:'+pct+'%;background:'+GRADE_COLOR[e.g]+';"></div></div></div>'+
+        '<div style="text-align:right;">'+
+          '<div class="row-amount">avg $'+Number(e.avg).toFixed(2)+'</div>'+
+          '<div style="font-size:10px;color:var(--muted);">total $'+Number(e.total).toFixed(2)+'</div>'+
+        '</div>';
+      el.appendChild(row);
+    });
+  });
+}
+
+function loadTrSchool(){
+  var el=document.getElementById('tr-content'); el.innerHTML='<div class="loading">載入中...</div>';
+  DB.ref('users').once('value').then(function(snap){
+    var users=snap.val()||{}, entries=[];
+    Object.keys(users).forEach(function(code){
+      var u=users[code];
+      if(!u.profile||!u.profile.name||isHidden(code)) return;
+      entries.push({code:code,name:u.profile.name,avatar:u.profile.avatar||'🐉',cls:u.profile.class,bucks:u.profile.robbiBucks||0});
+    });
+    entries.sort(function(a,b){return b.bucks-a.bucks;});
+    renderRows(el, entries, null, 'class');
+  });
+}
+</script>
+</body>
+</html>
